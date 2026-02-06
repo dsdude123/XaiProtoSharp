@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Xai.Protos.Test/Xai.Protos.Test.csproj" />
+  <Project Path="Xai.Protos/Xai.Protos.csproj" />
+</Solution>
