@@ -1,0 +1,9 @@
+version: v2
+clean: true # remove generated files before re-generating
+managed:
+  enabled: true
+plugins:
+  - remote: buf.build/protocolbuffers/csharp
+    out: Xai.Protos
+  - remote: buf.build/grpc/csharp
+    out: Xai.Protos
