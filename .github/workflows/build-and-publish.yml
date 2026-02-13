@@ -1,0 +1,126 @@
+name: Build and Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      proto_commit_sha:
+        description: 'Proto commit SHA to track (optional)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for integration blocked flag
+        run: |
+          if (Test-Path ".github/INTEGRATION_BLOCKED") {
+            Write-Output "::error::Integration is blocked due to a previous failure. Run the manual-reset workflow to clear."
+            Get-Content ".github/INTEGRATION_BLOCKED"
+            exit 1
+          }
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Setup Buf CLI
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Clone xai-proto and generate code
+        id: generate
+        continue-on-error: true
+        run: |
+          git clone https://github.com/xai-org/xai-proto.git xai-proto
+          buf generate xai-proto
+
+      - name: Build
+        id: build
+        if: steps.generate.outcome == 'success'
+        continue-on-error: true
+        run: dotnet build --configuration Release
+
+      - name: Test
+        id: test
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        env:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+        run: dotnet test --configuration Release
+
+      - name: Handle failure
+        if: steps.generate.outcome == 'failure' || steps.build.outcome == 'failure' || steps.test.outcome == 'failure'
+        run: |
+          $failedStep = "unknown"
+          if ("${{ steps.generate.outcome }}" -eq "failure") {
+            $failedStep = "generate"
+          } elseif ("${{ steps.build.outcome }}" -eq "failure") {
+            $failedStep = "build"
+          } elseif ("${{ steps.test.outcome }}" -eq "failure") {
+            $failedStep = "test"
+          }
+
+          $timestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+          $content = @"
+          Blocked due to failure in step: $failedStep
+          Date: $timestamp
+          Run ID: ${{ github.run_id }}
+          Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          "@
+          Set-Content -Path ".github/INTEGRATION_BLOCKED" -Value $content
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/INTEGRATION_BLOCKED
+          git commit -m "ci: block integration due to $failedStep failure [skip ci]"
+          git push
+
+          Write-Output "::error::Pipeline failed at step: $failedStep. Integration is now blocked."
+          exit 1
+
+      - name: Pack NuGet package
+        run: dotnet pack Xai.Protos/Xai.Protos.csproj --configuration Release --output ./nupkg
+
+      - name: Publish to GitHub Packages
+        run: dotnet nuget push ./nupkg/*.nupkg --source "https://nuget.pkg.github.com/dsdude123/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+
+      - name: Publish to NuGet.org
+        run: dotnet nuget push ./nupkg/*.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+
+      - name: Update tracking file
+        run: |
+          $protoSha = "${{ inputs.proto_commit_sha }}"
+          if ([string]::IsNullOrEmpty($protoSha)) {
+            $tracking = Get-Content ".github/proto-tracking.json" | ConvertFrom-Json
+            $protoSha = $tracking.last_commit_sha
+          }
+
+          $timestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+          $tracking = Get-Content ".github/proto-tracking.json" | ConvertFrom-Json
+          $tracking.last_commit_sha = $protoSha
+          $tracking.last_updated = $timestamp
+          $tracking | ConvertTo-Json | Set-Content ".github/proto-tracking.json"
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          $diff = git diff --cached --quiet; $hasChanges = $LASTEXITCODE -ne 0
+          if ($hasChanges) {
+            git commit -m "ci: update generated code and tracking [skip ci]"
+            git push
+          } else {
+            Write-Output "No changes to commit."
+          }

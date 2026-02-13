@@ -1,0 +1,40 @@
+name: Check for Proto Updates
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-updates:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for integration blocked flag
+        run: |
+          if (Test-Path ".github/INTEGRATION_BLOCKED") {
+            Write-Output "::error::Integration is blocked due to a previous failure. Run the manual-reset workflow to clear."
+            Get-Content ".github/INTEGRATION_BLOCKED"
+            exit 1
+          }
+
+      - name: Check for upstream changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tracking = Get-Content ".github/proto-tracking.json" | ConvertFrom-Json
+          $lastSha = $tracking.last_commit_sha
+          Write-Output "Last processed commit: $lastSha"
+
+          $latestSha = gh api repos/xai-org/xai-proto/commits/main --jq '.sha'
+          Write-Output "Latest upstream commit: $latestSha"
+
+          if ($lastSha -eq $latestSha) {
+            Write-Output "No updates found. Exiting."
+            exit 0
+          }
+
+          Write-Output "New commit detected! Triggering build-and-publish workflow."
+          gh workflow run build-and-publish.yml -f proto_commit_sha="$latestSha"
