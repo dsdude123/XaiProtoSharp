@@ -30,7 +30,7 @@ buf generate xai-proto
 
 ## Code Generation
 
-`buf.gen.yaml` configures Buf to generate both protobuf message classes and gRPC service clients into the `Xai.Protos/` directory. Generated code uses the `XaiApi` namespace. The `clean: true` setting removes old generated files before regeneration. To generate, clone `xai-org/xai-proto` and run `buf generate xai-proto` from the repo root.
+`buf.gen.yaml` configures Buf to generate both protobuf message classes and gRPC service clients into the `Xai.Protos/` directory. Generated code uses the `XaiApi` namespace. The `clean: false` setting preserves the `.csproj` file during regeneration. To generate, clone `xai-org/xai-proto` and run `buf generate xai-proto` from the repo root.
 
 ## Key Dependencies
 

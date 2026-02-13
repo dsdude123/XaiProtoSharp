@@ -1,5 +1,5 @@
 version: v2
-clean: true # remove generated files before re-generating
+clean: false
 managed:
   enabled: true
 plugins:
