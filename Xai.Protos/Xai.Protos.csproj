@@ -5,7 +5,20 @@
     <Version>$([System.DateTime]::UtcNow.ToString('yyyy.M.d'))</Version>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>XaiProtoSharp</PackageId>
+    <Authors>dsdude123</Authors>
+    <Description>Auto-generated C# gRPC client for xAI API using protobuf definitions from xai-org/xai-proto</Description>
+    <PackageProjectUrl>https://github.com/dsdude123/XaiProtoSharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dsdude123/XaiProtoSharp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>xai;grpc;protobuf;grok;ai</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Google.Api.Gax.Grpc" Version="4.13.0" />

@@ -19,7 +19,8 @@ dotnet test Xai.Protos.Test
 dotnet test Xai.Protos.Test --filter "FullyQualifiedName~TestChat"
 
 # Regenerate protobuf/gRPC C# code (requires Buf CLI installed)
-buf generate buf.build/xai/proto
+git clone https://github.com/xai-org/xai-proto.git xai-proto
+buf generate xai-proto
 ```
 
 ## Architecture
@@ -29,7 +30,7 @@ buf generate buf.build/xai/proto
 
 ## Code Generation
 
-`buf.gen.yaml` configures Buf to generate both protobuf message classes and gRPC service clients into the `Xai.Protos/` directory. Generated code uses the `XaiApi` namespace. The `clean: true` setting removes old generated files before regeneration.
+`buf.gen.yaml` configures Buf to generate both protobuf message classes and gRPC service clients into the `Xai.Protos/` directory. Generated code uses the `XaiApi` namespace. The `clean: true` setting removes old generated files before regeneration. To generate, clone `xai-org/xai-proto` and run `buf generate xai-proto` from the repo root.
 
 ## Key Dependencies
 
@@ -40,3 +41,25 @@ buf generate buf.build/xai/proto
 ## Authentication Pattern
 
 Tests authenticate with xAI API using bearer token authentication via gRPC metadata headers, reading from the `XAI_API_KEY` environment variable.
+
+## CI/CD Workflows
+
+### Workflows
+
+- **check-for-updates.yml** — Runs daily at 06:00 UTC. Compares the latest `xai-org/xai-proto` commit against `.github/proto-tracking.json`. If a new commit is detected, triggers `build-and-publish.yml`.
+- **build-and-publish.yml** — Main pipeline (manual trigger). Clones `xai-org/xai-proto`, replaces its `buf.gen.yaml`, generates code with Buf, builds, runs integration tests, packs and publishes NuGet packages to GitHub Packages and NuGet.org, then updates the tracking file.
+- **manual-reset.yml** — Clears the `INTEGRATION_BLOCKED` flag after a pipeline failure. Requires typing "RESET" to confirm.
+
+### Failure Flag Mechanism
+
+When any step in the build pipeline fails (generate, build, or test), a `.github/INTEGRATION_BLOCKED` file is committed. All subsequent workflow runs check for this file and exit immediately, preventing repeated API credit burn. Use the `manual-reset.yml` workflow to clear the flag after investigating and fixing the issue.
+
+### Required Secrets
+
+- `XAI_API_KEY` — xAI API key for integration tests
+- `NUGET_API_KEY` — NuGet.org API key for publishing
+- `GITHUB_TOKEN` — Automatically provided, used for GitHub Packages publishing
+
+### Proto Tracking
+
+`.github/proto-tracking.json` stores the last processed commit SHA from `xai-org/xai-proto`. Updated automatically after successful builds.

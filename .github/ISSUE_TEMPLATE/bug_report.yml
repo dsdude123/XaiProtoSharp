@@ -1,0 +1,81 @@
+name: Bug Report
+description: Report a bug with the XaiProtoSharp library
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Important:** This issue tracker is for bugs in the **XaiProtoSharp wrapper** (packaging, build, tests, CI, or generated code issues). If your issue is with the upstream protobuf definitions or xAI API behavior, please report it to [xai-org/xai-proto](https://github.com/xai-org/xai-proto) or [xAI support](https://docs.x.ai/) instead.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear description of the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Install package version ...
+        2. Write code that ...
+        3. Run ...
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened. Include error messages or stack traces if applicable.
+    validations:
+      required: true
+
+  - type: input
+    id: package-version
+    attributes:
+      label: Package Version
+      description: The version of XaiProtoSharp you are using.
+      placeholder: "e.g. 2026.2.12"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: dotnet-version
+    attributes:
+      label: .NET Version
+      options:
+        - .NET 8.0
+        - .NET 9.0
+        - .NET 10.0
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      placeholder: "e.g. Windows 11, Ubuntu 24.04, macOS 15"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem.
+    validations:
+      required: false
