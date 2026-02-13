@@ -22,7 +22,7 @@ jobs:
 
       - name: Check for upstream changes
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
           $tracking = Get-Content ".github/proto-tracking.json" | ConvertFrom-Json
           $lastSha = $tracking.last_commit_sha

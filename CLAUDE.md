@@ -58,6 +58,7 @@ When any step in the build pipeline fails (generate, build, or test), a `.github
 
 - `XAI_API_KEY` — xAI API key for integration tests
 - `NUGET_API_KEY` — NuGet.org API key for publishing
+- `WORKFLOW_PAT` — Fine-grained PAT with Actions read/write permission, used by check-for-updates to trigger build-and-publish
 - `GITHUB_TOKEN` — Automatically provided, used for GitHub Packages publishing
 
 ### Proto Tracking
