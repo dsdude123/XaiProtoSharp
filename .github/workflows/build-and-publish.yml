@@ -93,10 +93,14 @@ jobs:
         run: dotnet pack Xai.Protos/Xai.Protos.csproj --configuration Release --output ./nupkg
 
       - name: Publish to GitHub Packages
-        run: dotnet nuget push ./nupkg/*.nupkg --source "https://nuget.pkg.github.com/dsdude123/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+        run: |
+          $pkg = Get-ChildItem ./nupkg/*.nupkg | Select-Object -First 1
+          dotnet nuget push $pkg.FullName --source "https://nuget.pkg.github.com/dsdude123/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
 
       - name: Publish to NuGet.org
-        run: dotnet nuget push ./nupkg/*.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+        run: |
+          $pkg = Get-ChildItem ./nupkg/*.nupkg | Select-Object -First 1
+          dotnet nuget push $pkg.FullName --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
 
       - name: Update tracking file
         run: |
