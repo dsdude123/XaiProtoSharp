@@ -52,3 +52,12 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Auto-generated protobuf/gRPC code
+Xai.Protos/*.cs
+
+# Cloned proto repo (used during code generation)
+xai-proto/
+
+# IDE settings
+.idea/

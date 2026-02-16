@@ -120,7 +120,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add .github/proto-tracking.json
           $diff = git diff --cached --quiet; $hasChanges = $LASTEXITCODE -ne 0
           if ($hasChanges) {
             git commit -m "ci: update generated code and tracking [skip ci]"
