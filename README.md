@@ -3,6 +3,7 @@
 [![NuGet](https://img.shields.io/nuget/v/XaiProtoSharp)](https://www.nuget.org/packages/XaiProtoSharp)
 [![License](https://img.shields.io/github/license/dsdude123/XaiProtoSharp)](LICENSE)
 [![Build and Publish](https://github.com/dsdude123/XaiProtoSharp/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/dsdude123/XaiProtoSharp/actions/workflows/build-and-publish.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://dsdude123.github.io/XaiProtoSharp/)
 
 Auto-generated C# gRPC client for the [xAI API](https://docs.x.ai/), built from protobuf definitions in [xai-org/xai-proto](https://github.com/xai-org/xai-proto).
 
@@ -54,6 +55,10 @@ foreach (var output in response.Outputs)
     Console.WriteLine(output.Message.Content);
 }
 ```
+
+## Documentation
+
+Browse the full API reference at [dsdude123.github.io/XaiProtoSharp](https://dsdude123.github.io/XaiProtoSharp/).
 
 ## Supported Frameworks
 
