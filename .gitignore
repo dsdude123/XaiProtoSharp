@@ -59,5 +59,10 @@ Xai.Protos/*.cs
 # Cloned proto repo (used during code generation)
 xai-proto/
 
+# DocFX output
+_site/
+api/
+.manifest
+
 # IDE settings
 .idea/

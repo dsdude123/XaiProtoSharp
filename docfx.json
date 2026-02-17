@@ -1,0 +1,34 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": ["Xai.Protos/Xai.Protos.csproj"]
+        }
+      ],
+      "dest": "api",
+      "properties": {
+        "TargetFramework": "net10.0"
+      }
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": ["api/**.yml", "api/index.md"]
+      },
+      {
+        "files": ["toc.yml", "*.md"]
+      }
+    ],
+    "resource": [],
+    "dest": "_site",
+    "template": ["default", "modern"],
+    "globalMetadata": {
+      "_appName": "XaiProtoSharp",
+      "_appTitle": "XaiProtoSharp",
+      "_appFooter": "XaiProtoSharp — Auto-generated C# gRPC client for xAI API",
+      "_enableSearch": true
+    }
+  }
+}
