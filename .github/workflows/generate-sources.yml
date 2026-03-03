@@ -1,0 +1,25 @@
+name: Generate Sources
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Buf CLI
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Clone xai-proto and generate code
+        run: |
+          git clone https://github.com/xai-org/xai-proto.git xai-proto
+          buf generate xai-proto
+
+      - name: Upload generated sources
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-sources
+          path: Xai.Protos/
