@@ -1,14 +1,22 @@
-name: Generate Sources
+name: Debug Build
 
 on:
   workflow_dispatch:
 
 jobs:
-  generate:
-    runs-on: ubuntu-latest
+  debug-build:
+    runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
 
       - name: Setup Buf CLI
         uses: bufbuild/buf-setup-action@v1
@@ -23,3 +31,12 @@ jobs:
         with:
           name: generated-sources
           path: Xai.Protos/
+
+      - name: Build (Debug)
+        run: dotnet build --configuration Debug
+
+      - name: Upload debug build
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-build
+          path: Xai.Protos/bin/Debug/
