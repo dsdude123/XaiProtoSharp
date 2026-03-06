@@ -89,6 +89,44 @@ public class BasicTests(ITestOutputHelper testOutputHelper)
     }
 
     [Fact]
+    public void TestImageEdit()
+    {
+        var grpcChannel = GrpcChannel.ForAddress("https://api.x.ai");
+        var imageClient = new Image.ImageClient(grpcChannel);
+
+        Metadata headers = new Metadata
+        {
+            { "Authorization", $"Bearer {apiKey}" }
+        };
+
+        var testRequest = new GenerateImageRequest
+        {
+            Model = "grok-imagine-image",
+            Prompt = "Add a hat to the capybara",
+            N = 1,
+            Format = ImageFormat.ImgFormatUrl,
+            Images =
+            {
+                new ImageUrlContent { ImageUrl = "https://upload.wikimedia.org/wikipedia/en/6/64/Windows_XP_Luna.png" },
+                new ImageUrlContent { ImageUrl = "https://upload.wikimedia.org/wikipedia/en/a/a5/RoyaleXP2.PNG" }
+            }
+        };
+
+        var response = imageClient.GenerateImage(testRequest, headers);
+        Assert.NotNull(response);
+        Assert.Single(response.Images);
+        var image = response.Images[0];
+        Assert.NotNull(image);
+        testOutputHelper.WriteLine($"Edited Image URL: {image.Url}");
+        Assert.False(string.IsNullOrWhiteSpace(image.Url), "Edited image URL is null or empty.");
+
+        bool validUrl = Uri.TryCreate(image.Url, UriKind.Absolute, out var uriResult)
+                        && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+
+        Assert.True(validUrl, $"Edited image URL is not a valid http/https URL: {image.Url}");
+    }
+
+    [Fact]
     public void TestVideo()
     {
         var grpcChannel = GrpcChannel.ForAddress("https://api.x.ai");
