@@ -99,6 +99,24 @@ public class BasicTests(ITestOutputHelper testOutputHelper)
             { "Authorization", $"Bearer {apiKey}" }
         };
 
+        // Use an image the API generated for us as the edit source. Pointing at a
+        // third-party host made this test fail whenever that host rate-limited the
+        // xAI image fetcher, which surfaces as an InvalidArgument image_download_error.
+        var sourceRequest = new GenerateImageRequest
+        {
+            Model = "grok-imagine-image",
+            Prompt = "A capybara standing in a park",
+            N = 1,
+            Format = ImageFormat.ImgFormatUrl
+        };
+
+        var sourceResponse = imageClient.GenerateImage(sourceRequest, headers);
+        Assert.NotNull(sourceResponse);
+        Assert.Single(sourceResponse.Images);
+        var sourceUrl = sourceResponse.Images[0].Url;
+        testOutputHelper.WriteLine($"Source Image URL: {sourceUrl}");
+        Assert.False(string.IsNullOrWhiteSpace(sourceUrl), "Source image URL is null or empty.");
+
         var testRequest = new GenerateImageRequest
         {
             Model = "grok-imagine-image",
@@ -107,8 +125,7 @@ public class BasicTests(ITestOutputHelper testOutputHelper)
             Format = ImageFormat.ImgFormatUrl,
             Images =
             {
-                new ImageUrlContent { ImageUrl = "https://upload.wikimedia.org/wikipedia/en/6/64/Windows_XP_Luna.png" },
-                new ImageUrlContent { ImageUrl = "https://upload.wikimedia.org/wikipedia/en/a/a5/RoyaleXP2.PNG" }
+                new ImageUrlContent { ImageUrl = sourceUrl }
             }
         };
 
